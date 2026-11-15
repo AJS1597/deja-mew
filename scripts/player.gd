@@ -27,6 +27,10 @@ extends CharacterBody2D
 @export var dash_end_speed: float = 320.0
 @export var dashes_per_airtime: int = 1
 
+@export_group("Wavedash")
+@export var wavedash_speed: float = 320.0
+@export var wavedash_carry_time: float = 0.22
+
 @export_group("Wall")
 @export var wall_slide_speed: float = 60.0
 @export var wall_grab_slide_speed: float = 20.0
@@ -43,6 +47,7 @@ var coyote_timer: float = 0.0
 var jump_buffer_timer: float = 0.0
 var wall_jump_lock_timer: float = 0.0
 var scamper_left: float = 0.0
+var wavedash_carry_timer: float = 0.0
 
 var _is_dashing: bool = false
 var _dash_timer: float = 0.0
@@ -58,6 +63,12 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	# Buffer jump input before the dash/freeze early-outs so a jump pressed
+	# during a dash can become a wavedash.
+	if Input.is_action_just_pressed("jump"):
+		jump_buffer_timer = jump_buffer_time
+	jump_buffer_timer = maxf(jump_buffer_timer - delta, 0.0)
+
 	if _dash_freeze_timer > 0.0:
 		_dash_freeze_timer -= delta
 		velocity = Vector2.ZERO
@@ -68,8 +79,8 @@ func _physics_process(delta: float) -> void:
 		return
 
 	coyote_timer = maxf(coyote_timer - delta, 0.0)
-	jump_buffer_timer = maxf(jump_buffer_timer - delta, 0.0)
 	wall_jump_lock_timer = maxf(wall_jump_lock_timer - delta, 0.0)
+	wavedash_carry_timer = maxf(wavedash_carry_timer - delta, 0.0)
 
 	if is_on_floor():
 		coyote_timer = coyote_time
@@ -82,8 +93,6 @@ func _physics_process(delta: float) -> void:
 	if wall_jump_lock_timer <= 0.0:
 		_face_direction(Vector2(float(facing), 0.0))
 
-	if Input.is_action_just_pressed("jump"):
-		jump_buffer_timer = jump_buffer_time
 	if Input.is_action_just_released("jump") and velocity.y < 0.0:
 		velocity.y *= jump_cut_multiplier
 
@@ -103,11 +112,23 @@ func _physics_process(delta: float) -> void:
 			_do_wall_jump(wall_normal)
 
 	if not wall_lock_active:
-		var target := input_axis * max_run_speed
-		var acceleration := run_acceleration if input_axis != 0.0 else run_deceleration
-		if not is_on_floor():
-			acceleration *= air_control
-		velocity.x = move_toward(velocity.x, target, acceleration * delta)
+		if wavedash_carry_timer > 0.0:
+			# Keep the wavedash boost; only braking against it reduces it.
+			if input_axis != 0.0 and signf(input_axis) != signf(velocity.x):
+				var carry_deceleration := run_deceleration
+				if not is_on_floor():
+					carry_deceleration *= air_control
+				velocity.x = move_toward(
+					velocity.x,
+					input_axis * max_run_speed,
+					carry_deceleration * delta
+				)
+		else:
+			var target := input_axis * max_run_speed
+			var acceleration := run_acceleration if input_axis != 0.0 else run_deceleration
+			if not is_on_floor():
+				acceleration *= air_control
+			velocity.x = move_toward(velocity.x, target, acceleration * delta)
 
 	if not is_on_floor():
 		var active_gravity := gravity
@@ -165,11 +186,16 @@ func _start_dash() -> void:
 	_is_dashing = true
 	_dash_timer = dash_time
 	_dash_freeze_timer = dash_freeze_time
+	wavedash_carry_timer = 0.0
 	velocity = Vector2.ZERO
 	sprite.modulate = Color(0.65, 0.85, 1.0, 1.0)
 
 
 func _process_dash(delta: float) -> void:
+	if _can_wavedash():
+		_do_wavedash()
+		return
+
 	_dash_timer -= delta
 	velocity = _dash_direction * dash_speed
 
@@ -179,6 +205,34 @@ func _process_dash(delta: float) -> void:
 		sprite.modulate = Color.WHITE
 
 	move_and_slide()
+
+
+## A wavedash is a jump during a grounded down-diagonal dash.
+func _can_wavedash() -> bool:
+	return jump_buffer_timer > 0.0 \
+		and is_on_floor() \
+		and _dash_direction.y > 0.1 \
+		and absf(_dash_direction.x) > 0.1
+
+
+func _do_wavedash() -> void:
+	var horizontal := signf(_dash_direction.x)
+	if horizontal == 0.0:
+		horizontal = float(facing)
+
+	_is_dashing = false
+	_dash_timer = 0.0
+	_dash_freeze_timer = 0.0
+	_dash_direction = Vector2.ZERO
+	jump_buffer_timer = 0.0
+	coyote_timer = 0.0
+
+	velocity.x = horizontal * wavedash_speed
+	velocity.y = jump_speed
+	facing = 1 if horizontal > 0.0 else -1
+	_face_direction(Vector2(horizontal, 0.0))
+	sprite.modulate = Color.WHITE
+	wavedash_carry_timer = wavedash_carry_time
 
 
 ## Points the cat's long axis along [param direction]. The cat is horizontal
@@ -215,6 +269,7 @@ func respawn_at(target: Vector2) -> void:
 	wall_jump_lock_timer = 0.0
 	dashes_left = dashes_per_airtime
 	scamper_left = scamper_distance
+	wavedash_carry_timer = 0.0
 	facing = 1
 	sprite.modulate = Color.WHITE
 	_face_direction(Vector2.RIGHT)

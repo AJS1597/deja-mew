@@ -24,6 +24,7 @@ for a cat.
 - Graybox cat visual is 20x12: horizontal on all fours by default, rotated toward
   the dash direction (including diagonals), and upright for scampering/up-dashes.
 - Ghost replay system with per-level budgets (level number - 1).
+- Celeste-style **wavedash**: down-diagonal dash into the floor, then jump.
 - Pressure buttons, sliding doors (momentary or permanent), moving platforms, and hazards.
 - Nine independent level scenes; **level 2 showcases ghosts + doors**, and
   **level 3 showcases the keyframed ferry platform**.
@@ -40,6 +41,7 @@ for a cat.
 | Grab | Z (hold) |
 | Scamper up a wall | Z + Up |
 | Wall jump | C while airborne against a wall |
+| Wavedash | Down-diagonal dash into the ground, then C during the dash |
 | Give up / leave a ghost | G |
 | Reset level and all ghosts | R |
 | Quit | Esc |
@@ -54,6 +56,21 @@ From a terminal:
 ```bash
 godot --path .
 ```
+
+## Wavedash
+
+A Celeste-style wavedash:
+
+1. Dash **down-diagonally** into the floor (e.g. Down + Right + X).
+2. Press **C** while the dash is still active and you are on the ground.
+
+The dash is canceled into a jump with a horizontal boost (`wavedash_speed`,
+default 320) and a short speed-carry window (`wavedash_carry_time`, default
+0.22 s). Jump input is buffered through the dash freeze, so pressing C early
+still works. Holding the dash direction preserves the boost; braking against it
+reduces it.
+
+Tune it on the Player under **Wavedash** in the Inspector.
 
 ## The ghost mechanic
 
@@ -231,6 +248,7 @@ Select `Player` in `scenes/player/player.tscn` for the movement exports:
 - **Run** - speed, acceleration, air control
 - **Jump** - jump speed, gravity, fall speed, coyote/buffer times
 - **Dash** - speed, duration, freeze frames, end speed, dashes per airtime
+- **Wavedash** - horizontal boost speed and boost-carry time
 - **Wall** - wall slide/grab speeds, wall jump, scamper speed and distance
 
 Ghost, door, and platform tuning:
