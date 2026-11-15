@@ -1,0 +1,47 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_choun"]
+[ext_resource type="PackedScene" path="res://scenes/levels/level_01.tscn" id="2_ya4ey"]
+[ext_resource type="PackedScene" path="res://scenes/levels/level_02.tscn" id="3_eb6dy"]
+[ext_resource type="PackedScene" path="res://scenes/levels/level_03.tscn" id="4_trceg"]
+[ext_resource type="PackedScene" path="res://scenes/levels/level_04.tscn" id="5_a8y0u"]
+[ext_resource type="PackedScene" path="res://scenes/levels/level_05.tscn" id="6_jkv2x"]
+[ext_resource type="PackedScene" path="res://scenes/levels/level_06.tscn" id="7_jbj1t"]
+[ext_resource type="PackedScene" path="res://scenes/levels/level_07.tscn" id="8_muem4"]
+[ext_resource type="PackedScene" path="res://scenes/levels/level_08.tscn" id="9_dp3eg"]
+[ext_resource type="PackedScene" path="res://scenes/levels/level_09.tscn" id="10_0ld40"]
+
+[node name="Main" type="Node" unique_id=2094338778]
+process_mode = 3
+script = ExtResource("1_choun")
+levels = Array[PackedScene]([ExtResource("2_ya4ey"), ExtResource("3_eb6dy"), ExtResource("4_trceg"), ExtResource("5_a8y0u"), ExtResource("6_jkv2x"), ExtResource("7_jbj1t"), ExtResource("8_muem4"), ExtResource("9_dp3eg"), ExtResource("10_0ld40")])
+
+[node name="LevelHolder" type="Node2D" parent="." unique_id=1098403256]
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=1788337439]
+
+[node name="CompleteOverlay" type="Control" parent="UI" unique_id=2021412601]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 512.0
+offset_bottom = 288.0
+
+[node name="Backdrop" type="ColorRect" parent="UI/CompleteOverlay" unique_id=637995409]
+layout_mode = 0
+offset_right = 512.0
+offset_bottom = 288.0
+mouse_filter = 2
+color = Color(0.047, 0.054, 0.076, 0.92)
+
+[node name="Label" type="Label" parent="UI/CompleteOverlay" unique_id=289702123]
+layout_mode = 0
+offset_right = 512.0
+offset_bottom = 288.0
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+text = "DEMO COMPLETE
+Press R to restart"
+horizontal_alignment = 1
+vertical_alignment = 1

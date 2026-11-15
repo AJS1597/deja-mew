@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
+size = Vector2(16, 32)
+
+[node name="Exit" type="Area2D"]
+collision_layer = 0
+collision_mask = 1
+
+[node name="Visual" type="Polygon2D" parent="."]
+color = Color(0.345098, 0.768627, 0.439216, 1)
+polygon = PackedVector2Array(-8, -16, 8, -16, 8, 16, -8, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_exit")
