@@ -29,7 +29,9 @@ def solid_png(path: Path, size: tuple[int, int], colour: tuple[int, int, int, in
 
 def main() -> None:
     solid_png(ROOT / "assets" / "tiles" / "tile_gray.png", (16, 16), TILE_GRAY)
-    solid_png(ROOT / "assets" / "sprites" / "cat_graybox.png", (12, 20), CAT_GRAY)
+    # The cat is drawn facing right. It is wider than tall so it reads as
+    # walking on all fours; the player script rotates it for dashes.
+    solid_png(ROOT / "assets" / "sprites" / "cat_graybox.png", (20, 12), CAT_GRAY)
 
 
 if __name__ == "__main__":

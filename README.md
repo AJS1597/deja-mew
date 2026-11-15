@@ -16,6 +16,8 @@ be painted and edited entirely with Godot's built-in GUI tools.
   - 8-directional dash (X), refills on the floor
   - Wall slide and wall jump
   - Grab (Z) and a two-tile wall scamper (Z + Up)
+- Graybox cat visual is 20x12: horizontal on all fours by default, rotated toward
+  the dash direction (including diagonals), and upright for scampering/up-dashes.
 - Nine independent level scenes, ready to design.
 - Level progression, HUD, exit areas, restart, and a completion screen.
 - All movement values exported on the Player for Inspector tuning.
@@ -111,6 +113,11 @@ python3 tools/make_graybox_assets.py
 The TileSet points at `assets/tiles/tile_gray.png`. If you replace that image,
 Godot reimports it and the tiles update automatically. Keep the 16x16 size (or
 update the TileSet's texture region size) if you change it.
+
+The cat texture (`assets/sprites/cat_graybox.png`) is drawn facing right and is
+20x12. The player keeps it horizontal on all fours and rotates it toward the
+dash direction; a 90-degree rotation makes it exactly match the 12x20 collision
+box. Swap in a right-facing cat later and the same orientation code will work.
 
 ## Local agent notes
 

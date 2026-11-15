@@ -77,9 +77,10 @@ func _physics_process(delta: float) -> void:
 		scamper_left = scamper_distance
 
 	var input_axis := Input.get_axis("move_left", "move_right")
-	if input_axis != 0.0:
+	if input_axis != 0.0 and wall_jump_lock_timer <= 0.0:
 		facing = 1 if input_axis > 0.0 else -1
-		sprite.flip_h = facing < 0
+	if wall_jump_lock_timer <= 0.0:
+		_face_direction(Vector2(float(facing), 0.0))
 
 	if Input.is_action_just_pressed("jump"):
 		jump_buffer_timer = jump_buffer_time
@@ -123,9 +124,11 @@ func _physics_process(delta: float) -> void:
 			velocity.y = -scamper_speed
 			velocity.x = -wall_normal.x * wall_stick_speed
 			scamper_left = maxf(scamper_left - scamper_speed * delta, 0.0)
+			_face_direction(Vector2(0.0, -1.0))
 		elif grab_held and velocity.y >= 0.0:
 			velocity.y = minf(velocity.y, wall_grab_slide_speed)
 			velocity.x = -wall_normal.x * wall_stick_speed
+			_face_direction(Vector2(-wall_normal.x, 0.0))
 		elif press_into_wall and velocity.y > 0.0 and not is_on_floor():
 			velocity.y = minf(velocity.y, wall_slide_speed)
 
@@ -142,7 +145,7 @@ func _do_wall_jump(wall_normal: Vector2) -> void:
 	velocity.x = wall_normal.x * wall_jump_horizontal_speed
 	velocity.y = wall_jump_vertical_speed
 	facing = 1 if wall_normal.x > 0.0 else -1
-	sprite.flip_h = facing < 0
+	_face_direction(Vector2(wall_normal.x, -1.0))
 	wall_jump_lock_timer = wall_jump_lockout
 	coyote_timer = 0.0
 	jump_buffer_timer = 0.0
@@ -156,7 +159,7 @@ func _start_dash() -> void:
 	_dash_direction = direction.normalized()
 	if absf(_dash_direction.x) > 0.01:
 		facing = 1 if _dash_direction.x > 0.0 else -1
-		sprite.flip_h = facing < 0
+	_face_direction(_dash_direction)
 
 	dashes_left -= 1
 	_is_dashing = true
@@ -176,6 +179,27 @@ func _process_dash(delta: float) -> void:
 		sprite.modulate = Color.WHITE
 
 	move_and_slide()
+
+
+## Points the cat's long axis along [param direction]. The cat is horizontal
+## (on all fours) by default; dashes, scampering, and wall jumps rotate it.
+func _face_direction(direction: Vector2) -> void:
+	if sprite == null or direction == Vector2.ZERO:
+		return
+
+	var normalized := direction.normalized()
+	var angle := normalized.angle()
+	if normalized.x < 0.0:
+		sprite.flip_h = true
+		sprite.rotation = wrapf(angle + PI, -PI, PI)
+	else:
+		sprite.flip_h = false
+		sprite.rotation = angle
+
+	# The 20x12 on-all-fours sprite is shorter than the 12x20 hitbox. Lower it
+	# while horizontal so its feet sit on the bottom of the hitbox.
+	var ground_offset := 4.0 if absf(normalized.y) < 0.01 else 0.0
+	sprite.position = Vector2(0.0, ground_offset)
 
 
 ## Returns the normal of a wall the player is touching, or Vector2.ZERO.
