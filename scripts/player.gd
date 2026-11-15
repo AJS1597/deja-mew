@@ -202,6 +202,24 @@ func _face_direction(direction: Vector2) -> void:
 	sprite.position = Vector2(0.0, ground_offset)
 
 
+## Called by the level on respawn/death. Clears all transient movement state.
+func respawn_at(target: Vector2) -> void:
+	global_position = target
+	velocity = Vector2.ZERO
+	_is_dashing = false
+	_dash_timer = 0.0
+	_dash_freeze_timer = 0.0
+	_dash_direction = Vector2.ZERO
+	coyote_timer = 0.0
+	jump_buffer_timer = 0.0
+	wall_jump_lock_timer = 0.0
+	dashes_left = dashes_per_airtime
+	scamper_left = scamper_distance
+	facing = 1
+	sprite.modulate = Color.WHITE
+	_face_direction(Vector2.RIGHT)
+
+
 ## Returns the normal of a wall the player is touching, or Vector2.ZERO.
 ## is_on_wall() only updates after movement, so a short probe makes grabbing and
 ## scampering work even when standing still next to a wall.
