@@ -119,11 +119,6 @@ The cat texture (`assets/sprites/cat_graybox.png`) is drawn facing right and is
 dash direction; a 90-degree rotation makes it exactly match the 12x20 collision
 box. Swap in a right-facing cat later and the same orientation code will work.
 
-## Local agent notes
-
-`leftoff/` is intentionally gitignored. It contains session handoff notes for
-AI agents and is not part of the published project.
-
 ## Repository
 
 https://github.com/AJS1597/deja-mew
