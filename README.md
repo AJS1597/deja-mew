@@ -24,8 +24,9 @@ for a cat.
 - Graybox cat visual is 20x12: horizontal on all fours by default, rotated toward
   the dash direction (including diagonals), and upright for scampering/up-dashes.
 - Ghost replay system with per-level budgets (level number - 1).
-- Pressure buttons, sliding doors (momentary or permanent), and hazards.
-- Nine independent level scenes; **level 2 is the ghost/button/door showcase**.
+- Pressure buttons, sliding doors (momentary or permanent), moving platforms, and hazards.
+- Nine independent level scenes; **level 2 showcases ghosts + doors**, and
+  **level 3 showcases the keyframed ferry platform**.
 - HUD with level name, ghost counter, and per-level hint.
 - Level progression, completion screen, and full reset.
 
@@ -111,6 +112,52 @@ Level 2 is already wired as an example: its `Door` node has the
 `PressureButton` node in its **Buttons** array. Open the scene and select the
 door to see the link.
 
+## Moving platforms
+
+- `scenes/objects/moving_platform.tscn`.
+- The root is an `AnimationPlayer`; `PlatformBody` is an `AnimatableBody2D`
+  carrying the visual and collision.
+- The **Move** animation keyframes `PlatformBody:position`; the first keyframe
+  is also the platform's resting position (shown in the editor by a small tool
+  script).
+- Inspector options:
+  - **Buttons** — drag one or more pressure buttons here.
+  - **Require All Buttons**.
+  - **Rewind Delay** (default 2 s) and **Rewind Speed**.
+- Behavior:
+  - While the pad is held, the looping animation plays.
+  - On release, the platform freezes, waits `rewind_delay`, then reverses along
+    the animation back to time 0 and stops.
+  - Pressing the pad during the wait/rewind resumes forward from the current
+    position.
+  - Death/G immediately resets the platform to its first keyframe; R reloads it.
+- The platform is an `AnimatableBody2D`, so it carries the player while riding.
+
+### Editing a platform path
+
+1. Select the platform instance (an `AnimationPlayer`).
+2. Open the **Animation** panel and choose **Move**.
+3. Select `PlatformBody`, move it, and insert position keyframes at the desired
+   times.
+4. Adjust the animation length and loop mode. The first key is the resting spot.
+5. Tune **Rewind Delay / Rewind Speed** on the platform.
+
+### Per-instance animations
+
+The reusable scene contains a sample **Move** animation. To give a new instance
+its own path:
+
+1. Instantiate `moving_platform.tscn`.
+2. Select the instance (the `AnimationPlayer`).
+3. Make its animation library unique:
+   - **Animation** panel → **Manage Animations** (disk icon) → **Make Unique**, or
+   - Inspector → **AnimationMixer → Libraries** → right-click → **Make Unique**.
+4. Edit the **Move** animation.
+
+Level 3's ferry instance already has a unique, local animation library, so you
+can edit its path without affecting the template. You can also duplicate the
+level 3 ferry node as a starting point.
+
 ## Level 2: “Hold the Button”
 
 - A pressure pad sits on the floor near the start.
@@ -122,8 +169,21 @@ door to see the link.
 - Follow it through the doorway to the exit.
 - Level 2 has exactly one ghost. The HUD shows `Ghosts 0 / 1` and a hint.
 
-Levels 3–9 are still empty bordered rooms, ready to design. They are intentionally
-not populated yet.
+## Level 3: “Ghost Ferry”
+
+- The floor has an 11-tile pit; the exit is on the right ledge.
+- A pressure pad on the left ledge is linked to the moving platform's
+  **Buttons** array.
+- Press **G** on the pad. Your ghost replays the walk, holds the pad down, and
+  starts the ferry.
+- Board during the platform's left-dock hold, ride across, and step off at the
+  right ledge.
+- The platform has a 6-second loop: 2 s hold left, 1 s move right, 2 s hold
+  right, 1 s move back.
+- Level 3 has **2 ghosts**; one is enough to solve it.
+- Hint: *“Leave a ghost on the pad to power the ferry.”*
+
+Levels 4–9 are still empty bordered rooms, ready to design.
 
 ## Editing levels
 
@@ -138,10 +198,10 @@ not populated yet.
    - `level_name` — shown in the HUD.
    - `hint` — optional on-screen tutorial text.
    - `ghost_solid_delay` — seconds before ghosts become solid.
-7. Drag `scenes/objects/pressure_button.tscn`, `door.tscn`, and `hazard.tscn`
-   into a level as needed.
+7. Drag `scenes/objects/pressure_button.tscn`, `door.tscn`,
+   `moving_platform.tscn`, and `hazard.tscn` into a level as needed.
 8. Link a door by selecting it and dragging the button node into its **Buttons**
-   array in the Inspector.
+   array in the Inspector. Link a moving platform the same way.
 
 The nine levels are **independent copies**. `level_base.tscn` is a clean bordered
 room to duplicate. The player and every ghost start at the `Spawn` marker at
@@ -154,7 +214,7 @@ runtime.
 - Touching a hazard leaves a ghost at the contact spot and respawns you.
 - Falling below the room (y > 320) also counts as a death. The ghost recording is
   clipped to the last on-screen frame.
-- Level 2 does not use hazards; they are there for later levels.
+- Levels 2 and 3 do not use hazards; they are there for later levels.
 
 ## Adding a level
 
@@ -173,11 +233,13 @@ Select `Player` in `scenes/player/player.tscn` for the movement exports:
 - **Dash** - speed, duration, freeze frames, end speed, dashes per airtime
 - **Wall** - wall slide/grab speeds, wall jump, scamper speed and distance
 
-Ghost and door tuning:
+Ghost, door, and platform tuning:
 
 - Level root: `ghost_solid_delay`.
 - Door: `slide_distance`, `slide_time`, `open_mode`, `require_all_buttons`.
 - Ghost scene: default `solid_delay`.
+- Moving platform: `buttons`, `require_all_buttons`, `rewind_delay`,
+  `rewind_speed`, `animation_name`.
 - Player: `scamper_distance` defaults to 34 px (about two 16 px tiles).
 
 ## Project layout
@@ -193,17 +255,19 @@ scenes/
     ghost.tscn          Recorded replay body
     pressure_button.tscn
     door.tscn
+    moving_platform.tscn Keyframed button-powered platform
     hazard.tscn
   ui/hud.tscn           Level / ghost / hint labels
   levels/
     level_base.tscn     Bordered template room
-    level_01..09.tscn   Independent levels; 02 is the showcase
+    level_01..09.tscn   Independent levels; 02 and 03 are showcases
 scripts/
   player.gd             Movement, respawn
   level.gd              Recording, ghosts, death, world reset, HUD
   ghost.gd              Playback, solid delay, statue
   pressure_button.gd
   door.gd
+  moving_platform.gd    Button-driven animation, rewind, reset
   hazard.gd
   main.gd
   hud.gd
