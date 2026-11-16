@@ -1,17 +1,82 @@
-[gd_scene format=4]
+[gd_scene format=4 uid="uid://ceh4biwd0g6n0"]
 
-[ext_resource type="Script" path="res://scripts/level.gd" id="1_cw75u"]
-[ext_resource type="TileSet" path="res://resources/graybox_tileset.tres" id="2_gkpor"]
+[ext_resource type="Script" uid="uid://byk18781raq1b" path="res://scripts/level.gd" id="1_cw75u"]
+[ext_resource type="TileSet" uid="uid://w1sh3mqbyrys" path="res://resources/graybox_tileset.tres" id="2_gkpor"]
 [ext_resource type="PackedScene" path="res://scenes/objects/exit.tscn" id="3_a0uur"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="4_yy4na"]
-[ext_resource type="Script" path="res://scripts/player.gd" id="5_07dqf"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="6_76vq8"]
-[ext_resource type="Script" path="res://scripts/hud.gd" id="7_tdc43"]
+[ext_resource type="PackedScene" path="res://scenes/objects/pressure_button.tscn" id="6_gkpor"]
+[ext_resource type="Script" uid="uid://bl3sr2pdv511l" path="res://scripts/moving_platform.gd" id="7_a0uur"]
+[ext_resource type="PackedScene" path="res://scenes/objects/hazard.tscn" id="8_yy4na"]
+[ext_resource type="PackedScene" path="res://scenes/objects/door.tscn" id="9_a0uur"]
+
+[sub_resource type="Animation" id="Animation_ll65p"]
+resource_name = "Move"
+length = 3.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("PlatformBody:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1.5, 3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, -64), Vector2(0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_07dqf"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("PlatformBody:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(186, 54)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_fja67"]
+_data = {
+&"Move": SubResource("Animation_ll65p"),
+&"RESET": SubResource("Animation_07dqf")
+}
+
+[sub_resource type="Animation" id="Animation_76vq8"]
+resource_name = "Level4"
+length = 3.0000000000000004
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("PlatformBody:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(-0.03333336, 3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(186, 54), Vector2(392, 54)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_tdc43"]
+_data = {
+&"Level4": SubResource("Animation_76vq8")
+}
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cr5dy"]
+size = Vector2(48, 12)
 
 [node name="Level04" type="Node2D" unique_id=988591841]
 script = ExtResource("1_cw75u")
 level_number = 4
 level_name = "Room 04"
+hint = "Ghosts don't just interact with buttons"
 
 [node name="Background" type="ColorRect" parent="." unique_id=1970608426]
 z_index = -10
@@ -21,19 +86,64 @@ mouse_filter = 2
 color = Color(0.082, 0.09, 0.11, 1)
 
 [node name="Solid" type="TileMapLayer" parent="." unique_id=183669401]
-tile_map_data = PackedByteArray("AAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA8AAAAAAAAAAAAAABAAAAAAAAAAAAAAABEAAAAAAAAAAAABAAAAAAAAAAAAAAABABEAAAAAAAAAAAACAAAAAAAAAAAAAAACABEAAAAAAAAAAAADAAAAAAAAAAAAAAADABEAAAAAAAAAAAAEAAAAAAAAAAAAAAAEABEAAAAAAAAAAAAFAAAAAAAAAAAAAAAFABEAAAAAAAAAAAAGAAAAAAAAAAAAAAAGABEAAAAAAAAAAAAHAAAAAAAAAAAAAAAHABEAAAAAAAAAAAAIAAAAAAAAAAAAAAAIABEAAAAAAAAAAAAJAAAAAAAAAAAAAAAJABEAAAAAAAAAAAAKAAAAAAAAAAAAAAAKABEAAAAAAAAAAAALAAAAAAAAAAAAAAALABEAAAAAAAAAAAAMAAAAAAAAAAAAAAAMABEAAAAAAAAAAAANAAAAAAAAAAAAAAANABEAAAAAAAAAAAAOAAAAAAAAAAAAAAAOABEAAAAAAAAAAAAPAAAAAAAAAAAAAAAPABEAAAAAAAAAAAAQAAAAAAAAAAAAAAAQABEAAAAAAAAAAAARAAAAAAAAAAAAAAARABEAAAAAAAAAAAASAAAAAAAAAAAAAAASABEAAAAAAAAAAAATAAAAAAAAAAAAAAATABEAAAAAAAAAAAAUAAAAAAAAAAAAAAAUABEAAAAAAAAAAAAVAAAAAAAAAAAAAAAVABEAAAAAAAAAAAAWAAAAAAAAAAAAAAAWABEAAAAAAAAAAAAXAAAAAAAAAAAAAAAXABEAAAAAAAAAAAAYAAAAAAAAAAAAAAAYABEAAAAAAAAAAAAZAAAAAAAAAAAAAAAZABEAAAAAAAAAAAAaAAAAAAAAAAAAAAAaABEAAAAAAAAAAAAbAAAAAAAAAAAAAAAbABEAAAAAAAAAAAAcAAAAAAAAAAAAAAAcABEAAAAAAAAAAAAdAAAAAAAAAAAAAAAdABEAAAAAAAAAAAAeAAAAAAAAAAAAAAAeABEAAAAAAAAAAAAfAAAAAAAAAAAAAAAfAAEAAAAAAAAAAAAfAAIAAAAAAAAAAAAfAAMAAAAAAAAAAAAfAAQAAAAAAAAAAAAfAAUAAAAAAAAAAAAfAAYAAAAAAAAAAAAfAAcAAAAAAAAAAAAfAAgAAAAAAAAAAAAfAAkAAAAAAAAAAAAfAAoAAAAAAAAAAAAfAAsAAAAAAAAAAAAfAAwAAAAAAAAAAAAfAA0AAAAAAAAAAAAfAA4AAAAAAAAAAAAfAA8AAAAAAAAAAAAfABAAAAAAAAAAAAAfABEAAAAAAAAAAAA=")
+position = Vector2(1, 0)
+tile_map_data = PackedByteArray("AAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA8AAAAAAAAAAAAAABAAAAAAAAAAAAAAABEAAAAAAAAAAAABAAAAAAAAAAAAAAABABEAAAAAAAAAAAACAAAAAAAAAAAAAAACABEAAAAAAAAAAAADAAAAAAAAAAAAAAADABEAAAAAAAAAAAAEAAAAAAAAAAAAAAAEABEAAAAAAAAAAAAFAAAAAAAAAAAAAAAFABEAAAAAAAAAAAAGAAAAAAAAAAAAAAAGABEAAAAAAAAAAAAHAAAAAAAAAAAAAAAHABEAAAAAAAAAAAAIAAAAAAAAAAAAAAAIABEAAAAAAAAAAAAJAAAAAAAAAAAAAAAJABEAAAAAAAAAAAAKAAAAAAAAAAAAAAAKABEAAAAAAAAAAAALAAAAAAAAAAAAAAALABEAAAAAAAAAAAAMAAAAAAAAAAAAAAAMABEAAAAAAAAAAAANAAAAAAAAAAAAAAANABEAAAAAAAAAAAAOABEAAAAAAAAAAAAPABEAAAAAAAAAAAAQABEAAAAAAAAAAAARAAAAAAAAAAAAAAASAAAAAAAAAAAAAAATAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAVAAAAAAAAAAAAAAAWAAAAAAAAAAAAAAAXAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAZAAAAAAAAAAAAAAAaAAAAAAAAAAAAAAAbAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAAdAAAAAAAAAAAAAAAdABEAAAAAAAAAAAAeAAAAAAAAAAAAAAAeABEAAAAAAAAAAAAfAAAAAAAAAAAAAAAfAAEAAAAAAAAAAAAfAAIAAAAAAAAAAAAfAAMAAAAAAAAAAAAfAAQAAAAAAAAAAAAfAAUAAAAAAAAAAAAfAAYAAAAAAAAAAAAfAAcAAAAAAAAAAAAfAAgAAAAAAAAAAAAfAAkAAAAAAAAAAAAfAAoAAAAAAAAAAAAfAAsAAAAAAAAAAAAfAAwAAAAAAAAAAAAfAA0AAAAAAAAAAAAfAA4AAAAAAAAAAAAfAA8AAAAAAAAAAAAfABAAAAAAAAAAAAAfABEAAAAAAAAAAAAJAAMAAAAAAAAAAAAJAAQAAAAAAAAAAAAJAAUAAAAAAAAAAAAJAAYAAAAAAAAAAAAJAAcAAAAAAAAAAAAJAAgAAAAAAAAAAAAJAAkAAAAAAAAAAAAJAAoAAAAAAAAAAAAJAAsAAAAAAAAAAAAJAAwAAAAAAAAAAAAJAA0AAAAAAAAAAAAJAA4AAAAAAAAAAAAJAA8AAAAAAAAAAAAJABAAAAAAAAAAAAAIAAsAAAAAAAAAAAAHAAsAAAAAAAAAAAAGAAsAAAAAAAAAAAABAAUAAAAAAAAAAAACAAUAAAAAAAAAAAADAAUAAAAAAAAAAAAEAAUAAAAAAAAAAAAOAAAAAAAAAAAAAAAPAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAANAAUAAAAAAAAAAAANAAYAAAAAAAAAAAANAAcAAAAAAAAAAAANAAgAAAAAAAAAAAANAAkAAAAAAAAAAAANAAoAAAAAAAAAAAANAAsAAAAAAAAAAAANAAwAAAAAAAAAAAANAA4AAAAAAAAAAAANAA0AAAAAAAAAAAAOAAcAAAAAAAAAAAAPAAcAAAAAAAAAAAAQAAcAAAAAAAAAAAARAAcAAAAAAAAAAAASAAcAAAAAAAAAAAATAAcAAAAAAAAAAAAUAAcAAAAAAAAAAAAVAAcAAAAAAAAAAAAWAAcAAAAAAAAAAAAXAAcAAAAAAAAAAAAYAAcAAAAAAAAAAAAZAAcAAAAAAAAAAAAZAAgAAAAAAAAAAAAZAAkAAAAAAAAAAAAZAAoAAAAAAAAAAAAZAAsAAAAAAAAAAAANAAQAAAAAAAAAAAAaAAsAAAAAAAAAAAAbAAsAAAAAAAAAAAAcAAsAAAAAAAAAAAAdAAsAAAAAAAAAAAAeAAsAAAAAAAAAAAA=")
 tile_set = ExtResource("2_gkpor")
 
 [node name="Spawn" type="Marker2D" parent="." unique_id=1511406942]
 position = Vector2(40, 262)
 
-[node name="Exit" type="Area2D" parent="." unique_id=605845966 instance=ExtResource("3_a0uur")]
+[node name="Exit" parent="." unique_id=605845966 instance=ExtResource("3_a0uur")]
 position = Vector2(480, 256)
-collision_layer = 0
 
-[node name="Player" type="CharacterBody2D" parent="." unique_id=609093437 instance=ExtResource("4_yy4na")]
+[node name="Player" parent="." unique_id=609093437 instance=ExtResource("4_yy4na")]
 position = Vector2(40, 262)
-script = ExtResource("5_07dqf")
 
-[node name="HUD" type="CanvasLayer" parent="." unique_id=1739570257 instance=ExtResource("6_76vq8")]
-script = ExtResource("7_tdc43")
+[node name="HUD" parent="." unique_id=1739570257 instance=ExtResource("6_76vq8")]
+
+[node name="PressureButton" parent="." unique_id=1413693429 instance=ExtResource("6_gkpor")]
+position = Vector2(48, 80)
+
+[node name="MovingPlatform" type="AnimationPlayer" parent="." unique_id=769129079 node_paths=PackedStringArray("buttons")]
+root_node = NodePath(".")
+callback_mode_process = 0
+libraries/ = SubResource("AnimationLibrary_fja67")
+libraries/Platforms = SubResource("AnimationLibrary_tdc43")
+script = ExtResource("7_a0uur")
+buttons = [NodePath("../PressureButton")]
+animation_name = &"Platforms/Level4"
+
+[node name="PlatformBody" type="AnimatableBody2D" parent="MovingPlatform" unique_id=58132647]
+position = Vector2(186, 54)
+collision_mask = 0
+
+[node name="Visual" type="Polygon2D" parent="MovingPlatform/PlatformBody" unique_id=1141954467]
+color = Color(0.33, 0.62, 0.62, 1)
+polygon = PackedVector2Array(-24, -6, 24, -6, 24, 6, -24, 6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MovingPlatform/PlatformBody" unique_id=981209550]
+shape = SubResource("RectangleShape2D_cr5dy")
+
+[node name="Hazard" parent="." unique_id=913650563 instance=ExtResource("8_yy4na")]
+position = Vector2(320.96, 104)
+scale = Vector2(11.95, 1)
+
+[node name="Hazard2" parent="." unique_id=1260249500 instance=ExtResource("8_yy4na")]
+position = Vector2(217, 65)
+
+[node name="Hazard3" parent="." unique_id=1250830482 instance=ExtResource("8_yy4na")]
+position = Vector2(456.74, 176)
+scale = Vector2(5.02, 1)
+
+[node name="Hazard4" parent="." unique_id=1536072625 instance=ExtResource("8_yy4na")]
+position = Vector2(488.68, 96.12)
+rotation = -1.5707964
+scale = Vector2(9.995, 1)
+
+[node name="PressureButton2" parent="." unique_id=60181427 instance=ExtResource("6_gkpor")]
+position = Vector2(417, 137)
+rotation = 1.5707964
+
+[node name="Door" parent="." unique_id=178221586 node_paths=PackedStringArray("buttons") instance=ExtResource("9_a0uur")]
+position = Vector2(217, 256)
+buttons = [NodePath("../PressureButton2")]
